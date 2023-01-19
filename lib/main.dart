@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
     home: MyApp(),
   ));
 }
@@ -18,59 +19,82 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
+  List list=[];
+  List templist=[];
   //https://fakestoreapi.com/products/categories
 
-  Future<List> get_categories() async {
+get_categories() async {
     // var url = Uri.https('fakestoreapi.com', 'products/categories');
     var url = Uri.parse('https://fakestoreapi.com/products/categories');
   var response = await http.get(url);
   print('Response status: ${response.statusCode}');
   print('Response body: ${response.body}');
 
-  List list=jsonDecode(response.body);
+  list=jsonDecode(response.body);
+  templist=list;
   print(list);
-  return list;
+  setState(() {
+
+  });
 
   }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    List l=["electronics","jewelery","men's clothing","women's clothing","two","three","four","five"];
+    print(l.where((element) => element.contains("f")));
     get_categories();
   }
 
+  bool search=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: search?
+        AppBar(
+        title: TextField(onChanged: (value) {
+          print(value);
+          templist=list.where((element) => element.toString().contains(value)).toList();
+          print(templist);
+          setState(() {
+
+          });
+        },),
+        actions: [
+          IconButton(onPressed: () {
+            setState(() {
+              search=!search;
+
+            });
+          }, icon: Icon(Icons.cancel))
+        ],
+      ):
+      AppBar(
+        title: Text("Ecommerce",),
+        actions: [
+          IconButton(onPressed: () {
+
+            setState(() {
+              search=!search;
+
+            });
+          }, icon: Icon(Icons.search))
+        ],
+      ),
       body: Column(
         children: [
           Text("Categories"),
-          Expanded(child: FutureBuilder(
-            future: get_categories(),
-            builder: (context, snapshot) {
-              print(snapshot.connectionState);
-              if(snapshot.connectionState==ConnectionState.waiting)
-              {
-                return Center(child: CircularProgressIndicator(),);
-              }
-              else
-              {
-                List? l=snapshot.data;
-                return ListView.builder(itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text("${l[index]}"),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        return productpage(l[index]);
-                      },));
-                    },
-                  );
-                },itemCount: l!.length,);
-              }
-            },
-          ))
+          Expanded(child: ListView.builder(itemBuilder: (context, index) {
+            return ListTile(
+              title: Text("${templist[index]}"),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return productpage(templist[index]);
+                },));
+              },
+            );
+          },itemCount: templist.length,))
         ],
       ),
     );
