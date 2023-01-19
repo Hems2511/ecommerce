@@ -12,15 +12,20 @@ class productpage extends StatefulWidget {
 }
 
 class _productpageState extends State<productpage> {
-
-    Future<List> get_products() async {
+  List list=[];
+  List templist=[];
+     get_products() async {
      // print('https://fakestoreapi.com/products/category/${widget.category}');
     var url = Uri.parse('https://fakestoreapi.com/products/category/${widget.category}');
     var response = await http.get(url);
     // print('Response status: ${response.statusCode}');
     // print('Response body: ${response.body}');
-    List list=jsonDecode(response.body);
-    return list;
+     list=jsonDecode(response.body);
+    templist=list;
+    print(list);
+    setState(() {
+
+    });
 
   }
   @override
@@ -28,42 +33,102 @@ class _productpageState extends State<productpage> {
     // TODO: implement initState
     super.initState();
 
+    // List l=[22,44,66,24,64,79,21,53,576];
+    List l=["electronics","jewelery","men's clothing","women's clothing","two","three","four","five"];
+    l.sort((a, b) => a.toString().compareTo(b.toString()));
+    print(l);
+    // l=l.reversed.toList();
+    l.sort((b, a) => a.toString().compareTo(b.toString()));
+    print(l);
     get_products();
   }
+    bool search=false;
+     int i=0;
   @override
   Widget build(BuildContext context) {
 
 
     return Scaffold(
-      appBar: AppBar(),
-      body: FutureBuilder(
-        future: get_products(),
-        builder: (context, snapshot) {
-          if(snapshot.connectionState==ConnectionState.waiting)
-            {
-              return Center(child: CircularProgressIndicator(),);
-            }
-          else
-            {
-              List? l=snapshot.data;
-              return ListView.builder(itemBuilder: (context, index) {
+      appBar: search?
+      AppBar(
+        title: TextField(onChanged: (value) {
+          print(value);
 
-                Map m=l[index];
-                print(m);
+          templist=list.where((element) => element['title'].toString().toLowerCase().contains(value.toLowerCase())).toList();
+          setState(() {
 
-                return ListTile(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return productDetails(m);
-                    },));
-                  },
-                  title: Text("${m['title']}"),
-                  subtitle: Text("${m['price']}"),
-                  leading: Image.network(m['image']),
-                );
-              },itemCount: l!.length,);
+          });
+        },),
+        actions: [
+          IconButton(onPressed: () {
+            setState(() {
+              search=!search;
+
+            });
+          }, icon: Icon(Icons.cancel))
+        ],
+      ):
+      AppBar(
+        title: Text("Ecommerce",),
+        actions: [
+          IconButton(onPressed: () {
+
+            setState(() {
+              search=!search;
+
+            });
+          }, icon: Icon(Icons.search))
+        ],
+      ),
+      body: ListView.builder(itemBuilder: (context, index) {
+
+        Map m=templist[index];
+        print(m);
+
+        return ListTile(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return productDetails(m);
+            },));
+          },
+          title: Text("${m['title']}"),
+          subtitle: Text("${m['price']}"),
+          leading: Image.network(m['image']),
+        );
+      },itemCount: templist.length,),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: i,
+        unselectedItemColor: Colors.black,
+        selectedItemColor: Colors.blueAccent,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        onTap: (value) {
+          setState(() {
+            i=value;
+            if(i==0)
+              {
+                templist.sort((a, b) => a['title'].toString().compareTo(b['title'].toString()),);
+              }
+            if(i==1)
+            {
+              templist.sort((b, a) => a['title'].toString().compareTo(b['title'].toString()),);
             }
+            if(i==2)
+            {
+              templist.sort((a, b) => double.parse(a['price'].toString()).compareTo(double.parse(b['price'].toString())));
+            }
+            if(i==3)
+            {
+              templist.sort((b, a) => double.parse(a['price'].toString()).compareTo(double.parse(b['price'].toString())));
+            }
+          });
         },
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.add),label: "atoz"),
+          BottomNavigationBarItem(icon: Icon(Icons.add),label: "ztoa"),
+          BottomNavigationBarItem(icon: Icon(Icons.add),label: "ltoh"),
+          BottomNavigationBarItem(icon: Icon(Icons.add),label: "htol"),
+        ],
       ),
     );
   }
