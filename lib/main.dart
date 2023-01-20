@@ -1,13 +1,15 @@
 import 'dart:convert';
 
 import 'package:ecommerce/productpage.dart';
+import 'package:ecommerce/qrcode.dart';
+import 'package:ecommerce/qrread.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: MyApp(),
+    home: qrread(),
   ));
 }
 class MyApp extends StatefulWidget {
