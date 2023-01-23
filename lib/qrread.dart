@@ -58,6 +58,7 @@ class _qrreadState extends State<qrread> {
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         result = scanData;
+
       });
     });
   }

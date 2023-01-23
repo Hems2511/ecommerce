@@ -40,6 +40,7 @@ dependencies:
   flutter_rating_bar:
   qr_flutter:
   qr_code_scanner:
+  razorpay_flutter: 
 
 dev_dependencies:
   flutter_test:
